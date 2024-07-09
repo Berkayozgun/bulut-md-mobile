@@ -1,24 +1,60 @@
+import { useEffect } from "react";
+import "react-native-reanimated";
+import { View, Text, Button } from "react-native";
+import Header from "@/components/Header";
+import PopularThings from "@/components/PopularThings";
+import Footer from "@/components/Footer";
+import GenreCard from "@/components/GenreCard";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-import {View, Text} from 'react-native';
-import Header from '@/components/Header';
-import PopularThings from '@/components/PopularThings';
-import Footer from '@/components/Footer';
-import GenreCard from '@/components/GenreCard';
-
-
-
-export default function RootLayout() {
- 
+function HomeScreen({ navigation }) {
   return (
-    <View style={{
-      flex: 1,
-    }}>
+    <View style={{ flex: 1, }}>
       <Header/>
       <PopularThings/>
-      <GenreCard/>
-      <Footer/>
+      <GenreCard navigation={navigation}/>
+      <Button
+        title='Go to Details'
+        onPress={() => navigation.navigate("Details")}
+      />
     </View>
+  );
+}
+
+function MoviesScreen() {
+  return (
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      <Text>Movies Screen</Text>
+    </View>
+  );
+}
+
+function SeriesScreen() {
+  return (
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      <Text>Series Screen</Text>
+    </View>
+  );
+}
+
+
+const Stack = createNativeStackNavigator();
+
+export default function RootLayout() {
+  return (
+    <NavigationContainer independent={true}>
+      <Stack.Navigator initialRouteName='Home'>
+        <Stack.Screen name='Home' component={HomeScreen} options={{
+          headerShown: false,
+        }} />
+        <Stack.Screen name='Movies' component={MoviesScreen} options={{
+          headerShown: false,
+        }}/>
+        <Stack.Screen name='Series' component={SeriesScreen} options={{
+          headerShown: false,
+        }}/>
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
