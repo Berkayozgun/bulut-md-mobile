@@ -14,10 +14,7 @@ function HomeScreen({ navigation }) {
       <Header/>
       <PopularThings/>
       <GenreCard navigation={navigation}/>
-      <Button
-        title='Go to Details'
-        onPress={() => navigation.navigate("Details")}
-      />
+      <Footer/>
     </View>
   );
 }
