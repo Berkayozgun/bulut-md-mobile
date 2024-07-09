@@ -4,6 +4,10 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import {View, Text} from 'react-native';
+import Header from '@/components/Header';
+import PopularThings from '@/components/PopularThings';
+import Footer from '@/components/Footer';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -27,11 +31,14 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
+    <View style={{
+      flex: 1,
+      backgroundColor: colorScheme === 'dark' ? DarkTheme.colors.background : DefaultTheme.colors.background,
+    
+    }}>
+      <Header/>
+      <PopularThings/>
+      <Footer/>
+    </View>
   );
 }
