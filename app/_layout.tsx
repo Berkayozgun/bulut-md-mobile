@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import "react-native-reanimated";
-import { View, Text, Button } from "react-native";
+import { ScrollView, View, Text, Button } from "react-native";
 import Header from "@/components/Header";
 import PopularThings from "@/components/PopularThings";
 import Footer from "@/components/Footer";
@@ -10,10 +10,9 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 function HomeScreen({ navigation }) {
   return (
-    <View style={{ flex: 1 }}>
+    <ScrollView style={{ flex: 1 }}>
       <GenreCard navigation={navigation} />
-      <Footer />
-    </View>
+    </ScrollView>
   );
 }
 
@@ -63,6 +62,7 @@ export default function RootLayout() {
           }}
         />
       </Stack.Navigator>
+      <Footer />
     </NavigationContainer>
   );
 }
