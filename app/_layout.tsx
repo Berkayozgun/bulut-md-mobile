@@ -10,18 +10,16 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 function HomeScreen({ navigation }) {
   return (
-    <View style={{ flex: 1, }}>
-      <Header/>
-      <PopularThings/>
-      <GenreCard navigation={navigation}/>
-      <Footer/>
+    <View style={{ flex: 1 }}>
+      <GenreCard navigation={navigation} />
+      <Footer />
     </View>
   );
 }
 
 function MoviesScreen() {
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+    <View style={{ flex: 1 }}>
       <Text>Movies Screen</Text>
     </View>
   );
@@ -29,28 +27,41 @@ function MoviesScreen() {
 
 function SeriesScreen() {
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+    <View style={{ flex: 1 }}>
       <Text>Series Screen</Text>
     </View>
   );
 }
-
 
 const Stack = createNativeStackNavigator();
 
 export default function RootLayout() {
   return (
     <NavigationContainer independent={true}>
+      <Header />
+      <PopularThings />
       <Stack.Navigator initialRouteName='Home'>
-        <Stack.Screen name='Home' component={HomeScreen} options={{
-          headerShown: false,
-        }} />
-        <Stack.Screen name='Movies' component={MoviesScreen} options={{
-          headerShown: false,
-        }}/>
-        <Stack.Screen name='Series' component={SeriesScreen} options={{
-          headerShown: false,
-        }}/>
+        <Stack.Screen
+          name='Home'
+          component={HomeScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name='Movies'
+          component={MoviesScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name='Series'
+          component={SeriesScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
