@@ -1,5 +1,8 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import SvgXml from "react-native-svg";
+import FacebookPNG from "../assets/images/facebook.png";
+import TwitterPNG from "../assets/images/twitter.png";
 
 export default function Footer() {
   return (
@@ -23,10 +26,25 @@ export default function Footer() {
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
+          gap: 10,
         }}
       >
-        <Text style={{ color: "#fff" }}>f</Text>
-        <Text style={{ color: "#fff" }}>t</Text>
+        <TouchableOpacity style={{ color: "#fff" }}>
+          <Image
+            style={styles.socialPNG}
+            source={FacebookPNG}
+            width='100'
+            height='100'
+          />
+        </TouchableOpacity>
+        <TouchableOpacity style={{ color: "#fff" }}>
+          <Image
+            style={styles.socialPNG}
+            source={TwitterPNG}
+            width='100'
+            height='100'
+          />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -40,9 +58,15 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     width: "100%",
+    height: 70,
+    padding: 10,
     alignItems: "center",
     backgroundColor: "#000",
     textColor: "#fff",
     // Add any additional styling you want for the footer
+  },
+  socialPNG: {
+    width: 30,
+    height: 30,
   },
 });
