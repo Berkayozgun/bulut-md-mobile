@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   TextInput,
 } from "react-native";
+import { Picker } from "@react-native-picker/picker";
 import Header from "@/components/Header";
 import PopularThings from "@/components/PopularThings";
 import Footer from "@/components/Footer";
@@ -27,9 +28,10 @@ function HomeScreen({ navigation }) {
 function MoviesScreen() {
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
-  const [loadingMovies, setLoadingMovies] = useState(true);
-  const [errorMovies, setErrorMovies] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("newest"); // Default sort by newest
 
   useEffect(() => {
     const loadMovies = async () => {
@@ -51,9 +53,9 @@ function MoviesScreen() {
         setFilteredMovies(filteredMovies); // Initial list includes all movies
       } catch (error) {
         console.error(error);
-        setErrorMovies(error.message);
+        setError(error.message);
       } finally {
-        setLoadingMovies(false);
+        setLoading(false);
       }
     };
 
@@ -61,16 +63,46 @@ function MoviesScreen() {
   }, []);
 
   useEffect(() => {
-    // Filter movies based on searchQuery
-    const filtered = movies.filter((item) =>
-      item.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Apply sorting based on sortBy value
+    let sortedMovies = [...movies];
 
-    // Check if searchQuery length is at least 3 characters before updating filteredMovies
-    if (searchQuery.length >= 3 || searchQuery === "") {
-      setFilteredMovies(filtered);
+    switch (sortBy) {
+      case "newest":
+        sortedMovies.sort((a, b) => b.releaseYear - a.releaseYear);
+        break;
+      case "oldest":
+        sortedMovies.sort((a, b) => a.releaseYear - b.releaseYear);
+        break;
+      case "rating":
+        alert("IMDb rating data is not available in the database.");
+        setSortBy("newest");
+        break;
+      case "random":
+        sortedMovies = shuffledArray(sortedMovies);
+        break;
+      default:
+        break;
     }
-  }, [searchQuery, movies]);
+
+    setFilteredMovies(sortedMovies);
+  }, [sortBy, movies]);
+
+  const shuffledArray = (array) => {
+    let currentIndex = array.length,
+      randomIndex;
+
+    while (currentIndex !== 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex],
+      ];
+    }
+
+    return array;
+  };
 
   const renderItem = ({ item }) => (
     <View style={styles.item}>
@@ -84,7 +116,7 @@ function MoviesScreen() {
     </View>
   );
 
-  if (loadingMovies) {
+  if (loading) {
     return (
       <View style={styles.loading}>
         <ActivityIndicator size='large' color='#0000ff' />
@@ -93,16 +125,29 @@ function MoviesScreen() {
     );
   }
 
-  if (errorMovies) {
+  if (error) {
     return (
       <View style={styles.loading}>
-        <Text>Error: {errorMovies}</Text>
+        <Text>Error: {error}</Text>
       </View>
     );
   }
 
   return (
     <View style={{ flex: 1 }}>
+      <View style={styles.dropdownContainer}>
+        <Text style={styles.label}>Sort by:</Text>
+        <Picker
+          selectedValue={sortBy}
+          onValueChange={(itemValue) => setSortBy(itemValue)}
+          style={styles.dropdown}
+        >
+          <Picker.Item label='Newest' value='newest' />
+          <Picker.Item label='Oldest' value='oldest' />
+          <Picker.Item label='Rating' value='rating' />
+          <Picker.Item label='Random' value='random' />
+        </Picker>
+      </View>
       <TextInput
         style={styles.searchInput}
         onChangeText={(text) => setSearchQuery(text)}
@@ -110,7 +155,9 @@ function MoviesScreen() {
         placeholder='Search movies...'
       />
       <FlatList
-        data={filteredMovies}
+        data={
+          searchQuery.length >= 3 ? filteredMovies : filteredMovies.slice(0, 18)
+        }
         renderItem={renderItem}
         keyExtractor={(item) => item.title}
       />
@@ -121,9 +168,10 @@ function MoviesScreen() {
 function SeriesScreen() {
   const [series, setSeries] = useState([]);
   const [filteredSeries, setFilteredSeries] = useState([]);
-  const [loadingSeries, setLoadingSeries] = useState(true);
-  const [errorSeries, setErrorSeries] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("newest"); // Default sort by newest
 
   useEffect(() => {
     const loadSeries = async () => {
@@ -147,7 +195,7 @@ function SeriesScreen() {
         console.error(error);
         setError(error.message);
       } finally {
-        setLoadingSeries(false);
+        setLoading(false);
       }
     };
 
@@ -155,16 +203,46 @@ function SeriesScreen() {
   }, []);
 
   useEffect(() => {
-    // Filter series based on searchQuery
-    const filtered = series.filter((item) =>
-      item.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Apply sorting based on sortBy value
+    let sortedSeries = [...series];
 
-    // Check if searchQuery length is at least 3 characters before updating filteredSeries
-    if (searchQuery.length >= 3 || searchQuery === "") {
-      setFilteredSeries(filtered);
+    switch (sortBy) {
+      case "newest":
+        sortedSeries.sort((a, b) => b.releaseYear - a.releaseYear);
+        break;
+      case "oldest":
+        sortedSeries.sort((a, b) => a.releaseYear - b.releaseYear);
+        break;
+      case "rating":
+        alert("IMDb rating data is not available in the database.");
+        setSortBy("newest"); // Default to "newest" sorting
+        break;
+      case "random":
+        sortedSeries = shuffledArray(sortedSeries);
+        break;
+      default:
+        break;
     }
-  }, [searchQuery, series]);
+
+    setFilteredSeries(sortedSeries);
+  }, [sortBy, series]);
+
+  const shuffledArray = (array) => {
+    let currentIndex = array.length,
+      randomIndex;
+
+    while (currentIndex !== 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex],
+      ];
+    }
+
+    return array;
+  };
 
   const renderItem = ({ item }) => (
     <View style={styles.item}>
@@ -178,7 +256,7 @@ function SeriesScreen() {
     </View>
   );
 
-  if (loadingSeries) {
+  if (loading) {
     return (
       <View style={styles.loading}>
         <ActivityIndicator size='large' color='#0000ff' />
@@ -187,7 +265,7 @@ function SeriesScreen() {
     );
   }
 
-  if (errorSeries) {
+  if (error) {
     return (
       <View style={styles.loading}>
         <Text>Error: {error}</Text>
@@ -197,6 +275,19 @@ function SeriesScreen() {
 
   return (
     <View style={{ flex: 1 }}>
+      <View style={styles.dropdownContainer}>
+        <Text style={styles.label}>Sort by:</Text>
+        <Picker
+          selectedValue={sortBy}
+          onValueChange={(itemValue) => setSortBy(itemValue)}
+          style={styles.dropdown}
+        >
+          <Picker.Item label='Newest' value='newest' />
+          <Picker.Item label='Oldest' value='oldest' />
+          <Picker.Item label='Rating' value='rating' />
+          <Picker.Item label='Random' value='random' />
+        </Picker>
+      </View>
       <TextInput
         style={styles.searchInput}
         onChangeText={(text) => setSearchQuery(text)}
@@ -204,7 +295,9 @@ function SeriesScreen() {
         placeholder='Search series...'
       />
       <FlatList
-        data={filteredSeries}
+        data={
+          searchQuery.length >= 3 ? filteredSeries : filteredSeries.slice(0, 18)
+        }
         renderItem={renderItem}
         keyExtractor={(item) => item.title}
       />
@@ -273,5 +366,27 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  dropdownContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    marginTop: 10,
+    marginBottom: 5,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  dropdown: {
+    height: 40,
+    width: 150,
+  },
+  searchInput: {
+    height: 40,
+    margin: 12,
+    borderWidth: 1,
+    padding: 10,
   },
 });
