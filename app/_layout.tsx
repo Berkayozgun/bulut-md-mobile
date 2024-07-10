@@ -25,20 +25,17 @@ function HomeScreen({ navigation }) {
   );
 }
 
-function MoviesScreen() {
-  const [movies, setMovies] = useState([]);
-  const [filteredMovies, setFilteredMovies] = useState([]);
+const useFetchAndSort = (url, programType) => {
+  const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest"); // Default sort by newest
 
   useEffect(() => {
-    const loadMovies = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(
-          "https://gist.githubusercontent.com/hknclk/5710c4adb791755b31ccde6777f04bd2/raw/bd4e28b3e34027707a0d393f414355c5ff5362db/sample.json"
-        );
+        const response = await fetch(url);
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -46,11 +43,11 @@ function MoviesScreen() {
 
         const data = await response.json();
 
-        const filteredMovies = data.entries.filter(
-          (entry) => entry.programType === "movie"
+        const filteredData = data.entries.filter(
+          (entry) => entry.programType === programType
         );
-        setMovies(filteredMovies);
-        setFilteredMovies(filteredMovies); // Initial list includes all movies
+        setData(filteredData);
+        setFilteredData(filteredData); // Initial list includes all movies
       } catch (error) {
         console.error(error);
         setError(error.message);
@@ -59,33 +56,33 @@ function MoviesScreen() {
       }
     };
 
-    loadMovies();
-  }, []);
+    fetchData();
+  }, [url, programType]);
 
   useEffect(() => {
     // Apply sorting based on sortBy value
-    let sortedMovies = [...movies];
+    let sortedData = [...data];
 
     switch (sortBy) {
       case "newest":
-        sortedMovies.sort((a, b) => b.releaseYear - a.releaseYear);
+        sortedData.sort((a, b) => b.releaseYear - a.releaseYear);
         break;
       case "oldest":
-        sortedMovies.sort((a, b) => a.releaseYear - b.releaseYear);
+        sortedData.sort((a, b) => a.releaseYear - b.releaseYear);
         break;
       case "rating":
         alert("IMDb rating data is not available in the database.");
-        setSortBy("newest");
+        setSortBy("newest"); // Default to "newest" sorting
         break;
       case "random":
-        sortedMovies = shuffledArray(sortedMovies);
+        sortedData = shuffledArray(sortedData);
         break;
       default:
         break;
     }
 
-    setFilteredMovies(sortedMovies);
-  }, [sortBy, movies]);
+    setFilteredData(sortedData);
+  }, [sortBy, data]);
 
   const shuffledArray = (array) => {
     let currentIndex = array.length,
@@ -103,6 +100,25 @@ function MoviesScreen() {
 
     return array;
   };
+
+  return {
+    filteredData,
+    loading,
+    error,
+    sortBy,
+    setSortBy,
+    shuffledArray,
+  };
+};
+
+function MoviesScreen() {
+  const { filteredData, loading, error, sortBy, setSortBy, shuffledArray } =
+    useFetchAndSort(
+      "https://gist.githubusercontent.com/hknclk/5710c4adb791755b31ccde6777f04bd2/raw/bd4e28b3e34027707a0d393f414355c5ff5362db/sample.json",
+      "movie"
+    );
+
+  const [searchQuery, setSearchQuery] = useState("");
 
   const renderItem = ({ item }) => (
     <View style={styles.item}>
@@ -156,7 +172,11 @@ function MoviesScreen() {
       />
       <FlatList
         data={
-          searchQuery.length >= 3 ? filteredMovies.filter(item => item.title.toLowerCase().includes(searchQuery.toLowerCase())) : filteredMovies.slice(0, 18)
+          searchQuery.length >= 3
+            ? filteredData.filter((item) =>
+                item.title.toLowerCase().includes(searchQuery.toLowerCase())
+              )
+            : filteredData.slice(0, 18)
         }
         renderItem={renderItem}
         keyExtractor={(item) => item.title}
@@ -166,83 +186,13 @@ function MoviesScreen() {
 }
 
 function SeriesScreen() {
-  const [series, setSeries] = useState([]);
-  const [filteredSeries, setFilteredSeries] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { filteredData, loading, error, sortBy, setSortBy, shuffledArray } =
+    useFetchAndSort(
+      "https://gist.githubusercontent.com/hknclk/5710c4adb791755b31ccde6777f04bd2/raw/bd4e28b3e34027707a0d393f414355c5ff5362db/sample.json",
+      "series"
+    );
+
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("newest"); // Default sort by newest
-
-  useEffect(() => {
-    const loadSeries = async () => {
-      try {
-        const response = await fetch(
-          "https://gist.githubusercontent.com/hknclk/5710c4adb791755b31ccde6777f04bd2/raw/bd4e28b3e34027707a0d393f414355c5ff5362db/sample.json"
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        const filteredSeries = data.entries.filter(
-          (entry) => entry.programType === "series"
-        );
-        setSeries(filteredSeries);
-        setFilteredSeries(filteredSeries); // Initial list includes all series
-      } catch (error) {
-        console.error(error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadSeries();
-  }, []);
-
-  useEffect(() => {
-    // Apply sorting based on sortBy value
-    let sortedSeries = [...series];
-
-    switch (sortBy) {
-      case "newest":
-        sortedSeries.sort((a, b) => b.releaseYear - a.releaseYear);
-        break;
-      case "oldest":
-        sortedSeries.sort((a, b) => a.releaseYear - b.releaseYear);
-        break;
-      case "rating":
-        alert("IMDb rating data is not available in the database.");
-        setSortBy("newest"); // Default to "newest" sorting
-        break;
-      case "random":
-        sortedSeries = shuffledArray(sortedSeries);
-        break;
-      default:
-        break;
-    }
-
-    setFilteredSeries(sortedSeries);
-  }, [sortBy, series]);
-
-  const shuffledArray = (array) => {
-    let currentIndex = array.length,
-      randomIndex;
-
-    while (currentIndex !== 0) {
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex],
-        array[currentIndex],
-      ];
-    }
-
-    return array;
-  };
 
   const renderItem = ({ item }) => (
     <View style={styles.item}>
@@ -259,7 +209,7 @@ function SeriesScreen() {
   if (loading) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size='large' color='#0000ff' />
+        <ActivityIndicator size="large" color="#0000ff" />
         <Text>Loading...</Text>
       </View>
     );
@@ -282,28 +232,32 @@ function SeriesScreen() {
           onValueChange={(itemValue) => setSortBy(itemValue)}
           style={styles.dropdown}
         >
-          <Picker.Item label='Newest' value='newest' />
-          <Picker.Item label='Oldest' value='oldest' />
-          <Picker.Item label='Rating' value='rating' />
-          <Picker.Item label='Random' value='random' />
+          <Picker.Item label="Newest" value="newest" />
+          <Picker.Item label="Oldest" value="oldest" />
+          <Picker.Item label="Rating" value="rating" />
+          <Picker.Item label="Random" value="random" />
         </Picker>
       </View>
       <TextInput
         style={styles.searchInput}
         onChangeText={(text) => setSearchQuery(text)}
         value={searchQuery}
-        placeholder='Search series...'
+        placeholder="Search series..."
       />
       <FlatList
         data={
-          searchQuery.length >= 3 ? filteredMovies.filter(item => item.title.toLowerCase().includes(searchQuery.toLowerCase())) : filteredMovies.slice(0, 18)
+          searchQuery.length >= 3
+            ? filteredData.filter((item) =>
+                item.title.toLowerCase().includes(searchQuery.toLowerCase())
+              )
+            : filteredData.slice(0, 18)
         }
         renderItem={renderItem}
         keyExtractor={(item) => item.title}
       />
     </View>
   );
-}
+};
 
 const Stack = createNativeStackNavigator();
 
