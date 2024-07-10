@@ -7,6 +7,7 @@ import {
   FlatList,
   StyleSheet,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
 import Header from "@/components/Header";
 import PopularThings from "@/components/PopularThings";
@@ -25,8 +26,10 @@ function HomeScreen({ navigation }) {
 
 function MoviesScreen() {
   const [movies, setMovies] = useState([]);
+  const [filteredMovies, setFilteredMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const loadMovies = async () => {
@@ -45,6 +48,7 @@ function MoviesScreen() {
           (entry) => entry.programType === "movie"
         );
         setMovies(filteredMovies);
+        setFilteredMovies(filteredMovies); // Initial list includes all movies
       } catch (error) {
         console.error(error);
         setError(error.message);
@@ -55,6 +59,18 @@ function MoviesScreen() {
 
     loadMovies();
   }, []);
+
+  useEffect(() => {
+    // Filter movies based on searchQuery
+    const filtered = movies.filter(item =>
+      item.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    // Check if searchQuery length is at least 3 characters before updating filteredMovies
+    if (searchQuery.length >= 3 || searchQuery === '') {
+      setFilteredMovies(filtered);
+    }
+  }, [searchQuery, movies]);
 
   const renderItem = ({ item }) => (
     <View style={styles.item}>
@@ -86,18 +102,28 @@ function MoviesScreen() {
   }
 
   return (
-    <FlatList
-      data={movies}
-      renderItem={renderItem}
-      keyExtractor={(item) => item.title}
-    />
+    <View style={{ flex: 1 }}>
+      <TextInput
+        style={styles.searchInput}
+        onChangeText={text => setSearchQuery(text)}
+        value={searchQuery}
+        placeholder="Search movies..."
+      />
+      <FlatList
+        data={filteredMovies}
+        renderItem={renderItem}
+        keyExtractor={item => item.title}
+      />
+    </View>
   );
 }
 
 function SeriesScreen() {
   const [series, setSeries] = useState([]);
+  const [filteredSeries, setFilteredSeries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const loadSeries = async () => {
@@ -112,6 +138,7 @@ function SeriesScreen() {
 
         const filteredSeries = data.entries.filter(entry => entry.programType === 'series');
         setSeries(filteredSeries);
+        setFilteredSeries(filteredSeries); // Initial list includes all series
       } catch (error) {
         console.error(error);
         setError(error.message);
@@ -122,6 +149,18 @@ function SeriesScreen() {
 
     loadSeries();
   }, []);
+
+  useEffect(() => {
+    // Filter series based on searchQuery
+    const filtered = series.filter(item =>
+      item.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    // Check if searchQuery length is at least 3 characters before updating filteredSeries
+    if (searchQuery.length >= 3 || searchQuery === '') {
+      setFilteredSeries(filtered);
+    }
+  }, [searchQuery, series]);
 
   const renderItem = ({ item }) => (
     <View style={styles.item}>
@@ -150,13 +189,22 @@ function SeriesScreen() {
   }
 
   return (
-    <FlatList
-      data={series}
-      renderItem={renderItem}
-      keyExtractor={item => item.title}
-    />
+    <View style={{ flex: 1 }}>
+      <TextInput
+        style={styles.searchInput}
+        onChangeText={text => setSearchQuery(text)}
+        value={searchQuery}
+        placeholder="Search series..."
+      />
+      <FlatList
+        data={filteredSeries}
+        renderItem={renderItem}
+        keyExtractor={item => item.title}
+      />
+    </View>
   );
 }
+
 
 const Stack = createNativeStackNavigator();
 
