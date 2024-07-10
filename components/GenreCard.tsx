@@ -10,7 +10,7 @@ export default function GenreCard({ navigation }) {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        padding: 16,
+        padding: 10,
         alignItems: "center",
       }}
     >
@@ -19,7 +19,7 @@ export default function GenreCard({ navigation }) {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          padding: 16,
+          padding: 10,
           gap: 16,
           alignItems: "center",
         }}
@@ -34,7 +34,7 @@ export default function GenreCard({ navigation }) {
               borderRadius: 15,
             }}
             source={{
-              uri: "https://upload.wikimedia.org/wikipedia/en/e/eb/Wolfcreek.png",
+              uri: "https://upload.wikimedia.org/wikipedia/en/4/42/HungerGamesPoster.jpg",
             }}
           />
         </TouchableOpacity>
