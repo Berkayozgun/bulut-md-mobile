@@ -148,7 +148,7 @@ function MoviesScreen() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, marginBottom: 50 }}>
       <TextInput
         style={styles.searchInput}
         onChangeText={(text) => setSearchQuery(text)}
@@ -223,7 +223,7 @@ function SeriesScreen() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, marginBottom: 50 }}>
       <TextInput
         style={styles.searchInput}
         onChangeText={(text) => setSearchQuery(text)}
