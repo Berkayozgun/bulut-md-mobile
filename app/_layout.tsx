@@ -27,9 +27,9 @@ function HomeScreen({ navigation }) {
 function MoviesScreen() {
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [loadingMovies, setLoadingMovies] = useState(true);
+  const [errorMovies, setErrorMovies] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const loadMovies = async () => {
@@ -51,9 +51,9 @@ function MoviesScreen() {
         setFilteredMovies(filteredMovies); // Initial list includes all movies
       } catch (error) {
         console.error(error);
-        setError(error.message);
+        setErrorMovies(error.message);
       } finally {
-        setLoading(false);
+        setLoadingMovies(false);
       }
     };
 
@@ -62,12 +62,12 @@ function MoviesScreen() {
 
   useEffect(() => {
     // Filter movies based on searchQuery
-    const filtered = movies.filter(item =>
+    const filtered = movies.filter((item) =>
       item.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     // Check if searchQuery length is at least 3 characters before updating filteredMovies
-    if (searchQuery.length >= 3 || searchQuery === '') {
+    if (searchQuery.length >= 3 || searchQuery === "") {
       setFilteredMovies(filtered);
     }
   }, [searchQuery, movies]);
@@ -84,7 +84,7 @@ function MoviesScreen() {
     </View>
   );
 
-  if (loading) {
+  if (loadingMovies) {
     return (
       <View style={styles.loading}>
         <ActivityIndicator size='large' color='#0000ff' />
@@ -93,10 +93,10 @@ function MoviesScreen() {
     );
   }
 
-  if (error) {
+  if (errorMovies) {
     return (
       <View style={styles.loading}>
-        <Text>Error: {error}</Text>
+        <Text>Error: {errorMovies}</Text>
       </View>
     );
   }
@@ -105,14 +105,14 @@ function MoviesScreen() {
     <View style={{ flex: 1 }}>
       <TextInput
         style={styles.searchInput}
-        onChangeText={text => setSearchQuery(text)}
+        onChangeText={(text) => setSearchQuery(text)}
         value={searchQuery}
-        placeholder="Search movies..."
+        placeholder='Search movies...'
       />
       <FlatList
         data={filteredMovies}
         renderItem={renderItem}
-        keyExtractor={item => item.title}
+        keyExtractor={(item) => item.title}
       />
     </View>
   );
@@ -121,29 +121,33 @@ function MoviesScreen() {
 function SeriesScreen() {
   const [series, setSeries] = useState([]);
   const [filteredSeries, setFilteredSeries] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [loadingSeries, setLoadingSeries] = useState(true);
+  const [errorSeries, setErrorSeries] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const loadSeries = async () => {
       try {
-        const response = await fetch('https://gist.githubusercontent.com/hknclk/5710c4adb791755b31ccde6777f04bd2/raw/bd4e28b3e34027707a0d393f414355c5ff5362db/sample.json');
-        
+        const response = await fetch(
+          "https://gist.githubusercontent.com/hknclk/5710c4adb791755b31ccde6777f04bd2/raw/bd4e28b3e34027707a0d393f414355c5ff5362db/sample.json"
+        );
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
 
-        const filteredSeries = data.entries.filter(entry => entry.programType === 'series');
+        const filteredSeries = data.entries.filter(
+          (entry) => entry.programType === "series"
+        );
         setSeries(filteredSeries);
         setFilteredSeries(filteredSeries); // Initial list includes all series
       } catch (error) {
         console.error(error);
         setError(error.message);
       } finally {
-        setLoading(false);
+        setLoadingSeries(false);
       }
     };
 
@@ -152,35 +156,38 @@ function SeriesScreen() {
 
   useEffect(() => {
     // Filter series based on searchQuery
-    const filtered = series.filter(item =>
+    const filtered = series.filter((item) =>
       item.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     // Check if searchQuery length is at least 3 characters before updating filteredSeries
-    if (searchQuery.length >= 3 || searchQuery === '') {
+    if (searchQuery.length >= 3 || searchQuery === "") {
       setFilteredSeries(filtered);
     }
   }, [searchQuery, series]);
 
   const renderItem = ({ item }) => (
     <View style={styles.item}>
-      <Image source={{ uri: item.images['Poster Art'].url }} style={styles.image} />
+      <Image
+        source={{ uri: item.images["Poster Art"].url }}
+        style={styles.image}
+      />
       <Text style={styles.title}>{item.title}</Text>
       <Text>{item.description}</Text>
       <Text>{item.releaseYear}</Text>
     </View>
   );
 
-  if (loading) {
+  if (loadingSeries) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size='large' color='#0000ff' />
         <Text>Loading...</Text>
       </View>
     );
   }
 
-  if (error) {
+  if (errorSeries) {
     return (
       <View style={styles.loading}>
         <Text>Error: {error}</Text>
@@ -192,19 +199,18 @@ function SeriesScreen() {
     <View style={{ flex: 1 }}>
       <TextInput
         style={styles.searchInput}
-        onChangeText={text => setSearchQuery(text)}
+        onChangeText={(text) => setSearchQuery(text)}
         value={searchQuery}
-        placeholder="Search series..."
+        placeholder='Search series...'
       />
       <FlatList
         data={filteredSeries}
         renderItem={renderItem}
-        keyExtractor={item => item.title}
+        keyExtractor={(item) => item.title}
       />
     </View>
   );
 }
-
 
 const Stack = createNativeStackNavigator();
 
