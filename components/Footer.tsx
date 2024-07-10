@@ -4,32 +4,19 @@ import SvgXml from "react-native-svg";
 import FacebookPNG from "../assets/images/facebook.png";
 import TwitterPNG from "../assets/images/twitter.png";
 
+// Footer component
 export default function Footer() {
   return (
     <View style={styles.footerContainer}>
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-evenly",
-        }}
-      >
+      <View style={styles.textContainer}>
         <Text style={{ color: "#fff" }}>Anasayfa</Text>
         <Text style={{ color: "#fff" }}> | </Text>
         <Text style={{ color: "#fff" }}>Kullanıcı Sözleşmesi</Text>
         <Text style={{ color: "#fff" }}> | </Text>
         <Text style={{ color: "#fff" }}>Gizlilik Sözleşimesi</Text>
       </View>
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          gap: 10,
-        }}
-      >
-        <TouchableOpacity style={{ color: "#fff" }}>
+      <View style={styles.iconContainer}>
+        <TouchableOpacity style={styles.icon}>
           <Image
             style={styles.socialPNG}
             source={FacebookPNG}
@@ -50,6 +37,7 @@ export default function Footer() {
   );
 }
 
+// Style definitions for the footer
 const styles = StyleSheet.create({
   footerContainer: {
     display: "flex",
@@ -63,7 +51,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#000",
     textColor: "#fff",
-    // Add any additional styling you want for the footer
+  },
+  textContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-evenly",
+  },
+  footerText: {
+    color: "#fff",
+  },
+  iconContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  icon: {
+    color: "#fff",
   },
   socialPNG: {
     width: 30,

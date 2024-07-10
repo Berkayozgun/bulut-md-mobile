@@ -16,287 +16,128 @@ import Footer from "@/components/Footer";
 import GenreCard from "@/components/GenreCard";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import useFetchAndSort from "../hooks/useFetchAndSort";
 
-function HomeScreen({ navigation }) {
-  return (
-    <ScrollView style={{ flex: 1 }}>
-      <GenreCard navigation={navigation} />
-    </ScrollView>
+// HomeScreen component
+const HomeScreen = ({ navigation }) => (
+  <ScrollView style={styles.flexContainer}>
+    <GenreCard navigation={navigation} />
+  </ScrollView>
+);
+
+// common component for displaying movie and series data
+const ProgramScreen = ({ programType }) => {
+  const { filteredData, loading, error, sortBy, setSortBy } = useFetchAndSort(
+    "https://gist.githubusercontent.com/hknclk/5710c4adb791755b31ccde6777f04bd2/raw/bd4e28b3e34027707a0d393f414355c5ff5362db/sample.json",
+    programType
   );
-}
 
-const useFetchAndSort = (url, programType) => {
-  const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [sortBy, setSortBy] = useState("Sırala"); // Default sort by newest
+  const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(url);
+  const renderItem = ({ item }) => (
+    <View style={styles.item}>
+      <Image
+        source={{ uri: item.images["Poster Art"].url }}
+        style={styles.image}
+      />
+      <Text style={styles.title}>{item.title}</Text>
+    </View>
+  );
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+  // Loading and error handling for fetching data from the API
+  if (loading) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size='large' color='#0000ff' />
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.loading}>
+        <Text>Error: {error}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.flexContainerWithMargin}>
+      <TextInput
+        style={styles.searchInput}
+        onChangeText={setSearchQuery}
+        value={searchQuery}
+        placeholder='Film / Dizi / Oyuncu ara...'
+      />
+      <View style={styles.dropdownContainer}>
+        <Picker
+          selectedValue={sortBy}
+          onValueChange={setSortBy}
+          style={styles.dropdown}
+        >
+          <Picker.Item label='Sırala' value='sort' />
+          <Picker.Item label='Yeniye Göre Sırala' value='newest' />
+          <Picker.Item label='Eskiye Göre Sırala' value='oldest' />
+          <Picker.Item label='Puana Göre Sırala' value='rating' />
+          <Picker.Item label='Rastgele Sırala' value='random' />
+        </Picker>
+      </View>
+
+      <FlatList
+        style={styles.flatList}
+        data={
+          searchQuery.length >= 3
+            ? filteredData.filter((item) =>
+                item.title.toLowerCase().includes(searchQuery.toLowerCase())
+              )
+            : filteredData.slice(0, 18)
         }
-
-        const data = await response.json();
-
-        const filteredData = data.entries.filter(
-          (entry) => entry.programType === programType
-        );
-        setData(filteredData);
-        setFilteredData(filteredData); // Initial list includes all movies
-      } catch (error) {
-        console.error(error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [url, programType]);
-
-  useEffect(() => {
-    // Apply sorting based on sortBy value
-    let sortedData = [...data];
-
-    switch (sortBy) {
-      case "newest":
-        sortedData.sort((a, b) => b.releaseYear - a.releaseYear);
-        break;
-      case "oldest":
-        sortedData.sort((a, b) => a.releaseYear - b.releaseYear);
-        break;
-      case "rating":
-        alert("IMDb rating data is not available in the database.");
-        setSortBy("newest"); // Default to "newest" sorting
-        break;
-      case "random":
-        sortedData = shuffledArray(sortedData);
-        break;
-      default:
-        break;
-    }
-
-    setFilteredData(sortedData);
-  }, [sortBy, data]);
-
-  const shuffledArray = (array) => {
-    let currentIndex = array.length,
-      randomIndex;
-
-    while (currentIndex !== 0) {
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex],
-        array[currentIndex],
-      ];
-    }
-
-    return array;
-  };
-
-  return {
-    filteredData,
-    loading,
-    error,
-    sortBy,
-    setSortBy,
-    shuffledArray,
-  };
+        renderItem={renderItem}
+        keyExtractor={(item) => item.title}
+        numColumns={2}
+      />
+    </View>
+  );
 };
 
-function MoviesScreen() {
-  const { filteredData, loading, error, sortBy, setSortBy, shuffledArray } =
-    useFetchAndSort(
-      "https://gist.githubusercontent.com/hknclk/5710c4adb791755b31ccde6777f04bd2/raw/bd4e28b3e34027707a0d393f414355c5ff5362db/sample.json",
-      "movie"
-    );
-
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const renderItem = ({ item }) => (
-    <View style={styles.item}>
-      <Image
-        source={{ uri: item.images["Poster Art"].url }}
-        style={styles.image}
-      />
-      <Text style={styles.title}>{item.title}</Text>
-    </View>
-  );
-
-  if (loading) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator size='large' color='#0000ff' />
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.loading}>
-        <Text>Error: {error}</Text>
-      </View>
-    );
-  }
-
-  return (
-    <View style={{ flex: 1, marginBottom: 50 }}>
-      <TextInput
-        style={styles.searchInput}
-        onChangeText={(text) => setSearchQuery(text)}
-        value={searchQuery}
-        placeholder='Film / Dizi / Oyuncu ara...'
-      />
-      <View style={styles.dropdownContainer}>
-        <Picker
-          selectedValue={sortBy}
-          onValueChange={(itemValue) => setSortBy(itemValue)}
-          style={styles.dropdown}
-        >
-          <Picker.Item label='Sırala' value='sort' />
-          <Picker.Item label='Yeniye Göre Sırala' value='newest' />
-          <Picker.Item label='Eskiye Göre Sırala' value='oldest' />
-          <Picker.Item label='Puana Göre Sırala' value='rating' />
-          <Picker.Item label='Rastgele Sırala' value='random' />
-        </Picker>
-      </View>
-
-      <FlatList
-        style={styles.flatList}
-        data={
-          searchQuery.length >= 3
-            ? filteredData.filter((item) =>
-                item.title.toLowerCase().includes(searchQuery.toLowerCase())
-              )
-            : filteredData.slice(0, 18)
-        }
-        renderItem={renderItem}
-        keyExtractor={(item) => item.title}
-        numColumns={2}
-      />
-    </View>
-  );
-}
-
-function SeriesScreen() {
-  const { filteredData, loading, error, sortBy, setSortBy, shuffledArray } =
-    useFetchAndSort(
-      "https://gist.githubusercontent.com/hknclk/5710c4adb791755b31ccde6777f04bd2/raw/bd4e28b3e34027707a0d393f414355c5ff5362db/sample.json",
-      "series"
-    );
-
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const renderItem = ({ item }) => (
-    <View style={styles.item}>
-      <Image
-        source={{ uri: item.images["Poster Art"].url }}
-        style={styles.image}
-      />
-      <Text style={styles.title}>{item.title}</Text>
-    </View>
-  );
-
-  if (loading) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator size='large' color='#0000ff' />
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.loading}>
-        <Text>Error: {error}</Text>
-      </View>
-    );
-  }
-
-  return (
-    <View style={{ flex: 1, marginBottom: 50 }}>
-      <TextInput
-        style={styles.searchInput}
-        onChangeText={(text) => setSearchQuery(text)}
-        value={searchQuery}
-        placeholder='Film / Dizi / Oyuncu ara...'
-      />
-      <View style={styles.dropdownContainer}>
-        <Picker
-          selectedValue={sortBy}
-          onValueChange={(itemValue) => setSortBy(itemValue)}
-          style={styles.dropdown}
-        >
-          <Picker.Item label='Sırala' value='sort' />
-          <Picker.Item label='Yeniye Göre Sırala' value='newest' />
-          <Picker.Item label='Eskiye Göre Sırala' value='oldest' />
-          <Picker.Item label='Puana Göre Sırala' value='rating' />
-          <Picker.Item label='Rastgele Sırala' value='random' />
-        </Picker>
-      </View>
-
-      <FlatList
-        style={styles.flatList}
-        data={
-          searchQuery.length >= 3
-            ? filteredData.filter((item) =>
-                item.title.toLowerCase().includes(searchQuery.toLowerCase())
-              )
-            : filteredData.slice(0, 18)
-        }
-        renderItem={renderItem}
-        keyExtractor={(item) => item.title}
-        numColumns={2}
-      />
-    </View>
-  );
-}
+const MoviesScreen = () => <ProgramScreen programType='movie' />;
+const SeriesScreen = () => <ProgramScreen programType='series' />;
 
 const Stack = createNativeStackNavigator();
 
-export default function RootLayout() {
-  return (
-    <NavigationContainer independent={true}>
-      <Header />
-      <PopularThings />
-      <Stack.Navigator initialRouteName='Home'>
-        <Stack.Screen
-          name='Home'
-          component={HomeScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name='Movies'
-          component={MoviesScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name='Series'
-          component={SeriesScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-      </Stack.Navigator>
-      <Footer />
-    </NavigationContainer>
-  );
-}
+// RootLayout component for navigation and routing between screens
+const RootLayout = () => (
+  <NavigationContainer independent={true}>
+    <Header />
+    <PopularThings />
+    <Stack.Navigator initialRouteName='Home'>
+      <Stack.Screen
+        name='Home'
+        component={HomeScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name='Movies'
+        component={MoviesScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name='Series'
+        component={SeriesScreen}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+    <Footer />
+  </NavigationContainer>
+);
 
+export default RootLayout;
+
+// Style definitions
 const styles = StyleSheet.create({
+  flexContainer: { flex: 1 },
+  flexContainerWithMargin: { flex: 1, marginBottom: 50 },
   flatList: {
     display: "flex",
     width: "90%",
@@ -338,38 +179,25 @@ const styles = StyleSheet.create({
   },
   dropdownContainer: {
     flexDirection: "row",
-    display: "flex",
     height: 40,
-    marginLeft: 20,
+    marginHorizontal: 20,
     marginTop: 10,
-    marginRight: 20,
     alignItems: "center",
-    textAlign: "center",
     justifyContent: "space-between",
     borderWidth: 1,
     borderRadius: 5,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
-    display: "flex",
-    marginLeft: 10,
   },
   dropdown: {
     height: 40,
     width: "100%",
     borderWidth: 1,
     textAlign: "center",
-    display: "flex",
     justifyContent: "center",
   },
   searchInput: {
-    display: "flex",
     height: 40,
-    marginLeft: 20,
+    marginHorizontal: 20,
     marginTop: 10,
-    marginRight: 20,
     borderWidth: 1,
     borderRadius: 5,
     padding: 10,
