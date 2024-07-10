@@ -30,7 +30,7 @@ const useFetchAndSort = (url, programType) => {
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortBy, setSortBy] = useState("newest"); // Default sort by newest
+  const [sortBy, setSortBy] = useState("Sırala"); // Default sort by newest
 
   useEffect(() => {
     const fetchData = async () => {
@@ -127,8 +127,6 @@ function MoviesScreen() {
         style={styles.image}
       />
       <Text style={styles.title}>{item.title}</Text>
-      <Text>{item.description}</Text>
-      <Text>{item.releaseYear}</Text>
     </View>
   );
 
@@ -151,26 +149,28 @@ function MoviesScreen() {
 
   return (
     <View style={{ flex: 1 }}>
+      <TextInput
+        style={styles.searchInput}
+        onChangeText={(text) => setSearchQuery(text)}
+        value={searchQuery}
+        placeholder='Film / Dizi / Oyuncu ara...'
+      />
       <View style={styles.dropdownContainer}>
-        <Text style={styles.label}>Sort by:</Text>
         <Picker
           selectedValue={sortBy}
           onValueChange={(itemValue) => setSortBy(itemValue)}
           style={styles.dropdown}
         >
-          <Picker.Item label='Newest' value='newest' />
-          <Picker.Item label='Oldest' value='oldest' />
-          <Picker.Item label='Rating' value='rating' />
-          <Picker.Item label='Random' value='random' />
+          <Picker.Item label='Sırala' value='sort' />
+          <Picker.Item label='Yeniye Göre Sırala' value='newest' />
+          <Picker.Item label='Eskiye Göre Sırala' value='oldest' />
+          <Picker.Item label='Puana Göre Sırala' value='rating' />
+          <Picker.Item label='Rastgele Sırala' value='random' />
         </Picker>
       </View>
-      <TextInput
-        style={styles.searchInput}
-        onChangeText={(text) => setSearchQuery(text)}
-        value={searchQuery}
-        placeholder='Search movies...'
-      />
+
       <FlatList
+        style={styles.flatList}
         data={
           searchQuery.length >= 3
             ? filteredData.filter((item) =>
@@ -180,6 +180,7 @@ function MoviesScreen() {
         }
         renderItem={renderItem}
         keyExtractor={(item) => item.title}
+        numColumns={2}
       />
     </View>
   );
@@ -201,15 +202,13 @@ function SeriesScreen() {
         style={styles.image}
       />
       <Text style={styles.title}>{item.title}</Text>
-      <Text>{item.description}</Text>
-      <Text>{item.releaseYear}</Text>
     </View>
   );
 
   if (loading) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size='large' color='#0000ff' />
         <Text>Loading...</Text>
       </View>
     );
@@ -225,26 +224,28 @@ function SeriesScreen() {
 
   return (
     <View style={{ flex: 1 }}>
+      <TextInput
+        style={styles.searchInput}
+        onChangeText={(text) => setSearchQuery(text)}
+        value={searchQuery}
+        placeholder='Film / Dizi / Oyuncu ara...'
+      />
       <View style={styles.dropdownContainer}>
-        <Text style={styles.label}>Sort by:</Text>
         <Picker
           selectedValue={sortBy}
           onValueChange={(itemValue) => setSortBy(itemValue)}
           style={styles.dropdown}
         >
-          <Picker.Item label="Newest" value="newest" />
-          <Picker.Item label="Oldest" value="oldest" />
-          <Picker.Item label="Rating" value="rating" />
-          <Picker.Item label="Random" value="random" />
+          <Picker.Item label='Sırala' value='sort' />
+          <Picker.Item label='Yeniye Göre Sırala' value='newest' />
+          <Picker.Item label='Eskiye Göre Sırala' value='oldest' />
+          <Picker.Item label='Puana Göre Sırala' value='rating' />
+          <Picker.Item label='Rastgele Sırala' value='random' />
         </Picker>
       </View>
-      <TextInput
-        style={styles.searchInput}
-        onChangeText={(text) => setSearchQuery(text)}
-        value={searchQuery}
-        placeholder="Search series..."
-      />
+
       <FlatList
+        style={styles.flatList}
         data={
           searchQuery.length >= 3
             ? filteredData.filter((item) =>
@@ -254,10 +255,11 @@ function SeriesScreen() {
         }
         renderItem={renderItem}
         keyExtractor={(item) => item.title}
+        numColumns={2}
       />
     </View>
   );
-};
+}
 
 const Stack = createNativeStackNavigator();
 
@@ -295,26 +297,39 @@ export default function RootLayout() {
 }
 
 const styles = StyleSheet.create({
+  flatList: {
+    display: "flex",
+    width: "90%",
+    alignSelf: "center",
+    padding: 10,
+    marginBottom: 20,
+  },
   item: {
     marginBottom: 20,
-    padding: 10,
-    backgroundColor: "#fff",
-    borderRadius: 5,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 150,
+    padding: 5,
+    borderRadius: 15,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 0 },
   },
   image: {
-    width: "100%",
-    height: 200,
-    resizeMode: "cover",
-    borderRadius: 5,
+    width: 140,
+    height: 140,
+    resizeMode: "stretch",
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: "#000",
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
     marginVertical: 5,
+    width: 150,
+    textAlign: "center",
   },
   loading: {
     flex: 1,
@@ -323,24 +338,41 @@ const styles = StyleSheet.create({
   },
   dropdownContainer: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
+    display: "flex",
+    height: 40,
+    marginLeft: 20,
     marginTop: 10,
-    marginBottom: 5,
+    marginRight: 20,
+    alignItems: "center",
+    textAlign: "center",
+    justifyContent: "space-between",
+    borderWidth: 1,
+    borderRadius: 5,
   },
   label: {
     fontSize: 16,
     fontWeight: "bold",
+    textAlign: "center",
+    display: "flex",
+    marginLeft: 10,
   },
   dropdown: {
     height: 40,
-    width: 150,
+    width: "100%",
+    borderWidth: 1,
+    textAlign: "center",
+    display: "flex",
+    justifyContent: "center",
   },
   searchInput: {
+    display: "flex",
     height: 40,
-    margin: 12,
+    marginLeft: 20,
+    marginTop: 10,
+    marginRight: 20,
     borderWidth: 1,
+    borderRadius: 5,
     padding: 10,
+    textAlign: "center",
   },
 });
