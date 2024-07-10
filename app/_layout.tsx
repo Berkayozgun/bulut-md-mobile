@@ -156,7 +156,7 @@ function MoviesScreen() {
       />
       <FlatList
         data={
-          searchQuery.length >= 3 ? filteredMovies : filteredMovies.slice(0, 18)
+          searchQuery.length >= 3 ? filteredMovies.filter(item => item.title.toLowerCase().includes(searchQuery.toLowerCase())) : filteredMovies.slice(0, 18)
         }
         renderItem={renderItem}
         keyExtractor={(item) => item.title}
@@ -296,7 +296,7 @@ function SeriesScreen() {
       />
       <FlatList
         data={
-          searchQuery.length >= 3 ? filteredSeries : filteredSeries.slice(0, 18)
+          searchQuery.length >= 3 ? filteredMovies.filter(item => item.title.toLowerCase().includes(searchQuery.toLowerCase())) : filteredMovies.slice(0, 18)
         }
         renderItem={renderItem}
         keyExtractor={(item) => item.title}
